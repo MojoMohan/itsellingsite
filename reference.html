@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS 3D — IT Hardware, Software & Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#050810;--surface:#0a0f1a;--card:#0d1322;
+--cyan:#00e5ff;--magenta:#ff00c8;--violet:#7b2dff;
+--lime:#39ff14;--gold:#ffd700;--white:#e8ecf4;
+--glow-cyan:0 0 20px rgba(0,229,255,.4);
+--glow-magenta:0 0 20px rgba(255,0,200,.4);
+--glow-violet:0 0 20px rgba(123,45,255,.4);
+--font-display:'Orbitron',sans-serif;
+--font-body:'Rajdhani',sans-serif;
+--font-mono:'Share Tech Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);overflow-x:hidden}
+::selection{background:var(--cyan);color:var(--bg)}
+
+/* ─── PRELOADER ─── */
+#preloader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s}
+#preloader.hidden{opacity:0;visibility:hidden}
+.loader-ring{width:100px;height:100px;border:3px solid transparent;border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;position:relative}
+.loader-ring::before{content:'';position:absolute;inset:8px;border:3px solid transparent;border-top-color:var(--magenta);border-radius:50%;animation:spin 1.5s linear reverse infinite}
+.loader-text{font-family:var(--font-display);font-size:.9rem;color:var(--cyan);margin-top:24px;letter-spacing:4px;animation:pulse 1.5s ease infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ─── GRID BG ─── */
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+background-image:
+  linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);
+background-size:60px 60px}
+
+/* ─── FLOATING PARTICLES ─── */
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:3px;height:3px;background:var(--cyan);border-radius:50%;opacity:.6;animation:float-up linear infinite}
+@keyframes float-up{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(5,8,16,.7);border-bottom:1px solid rgba(0,229,255,.1);transition:all .3s}
+.logo{font-family:var(--font-display);font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;cursor:pointer}
+.logo span{font-size:.7rem;display:block;letter-spacing:6px;-webkit-text-fill-color:var(--white);opacity:.5;margin-top:2px}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--white);text-decoration:none;font-family:var(--font-body);font-weight:500;font-size:.95rem;letter-spacing:1px;position:relative;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--cyan);transition:width .3s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{padding:10px 24px;background:linear-gradient(135deg,var(--cyan),var(--violet));border:none;border-radius:4px;color:var(--bg);font-family:var(--font-display);font-size:.75rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:var(--glow-cyan)}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;perspective:1000px}
+.hero-content{text-align:center;z-index:2;animation:fadeInUp 1s ease .5s both}
+.hero-badge{display:inline-block;padding:8px 20px;border:1px solid rgba(0,229,255,.3);border-radius:50px;font-family:var(--font-mono);font-size:.75rem;color:var(--cyan);letter-spacing:3px;margin-bottom:32px;backdrop-filter:blur(10px);animation:fadeInUp 1s ease .7s both}
+.hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;line-height:1.05;margin-bottom:24px;animation:fadeInUp 1s ease .9s both}
+.hero h1 .line1{display:block;background:linear-gradient(90deg,var(--white),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .line2{display:block;background:linear-gradient(90deg,var(--magenta),var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.15rem;color:rgba(232,236,244,.6);max-width:560px;margin:0 auto 40px;line-height:1.7;animation:fadeInUp 1s ease 1.1s both}
+.hero-buttons{display:flex;gap:16px;justify-content:center;animation:fadeInUp 1s ease 1.3s both}
+.btn-primary{padding:14px 36px;background:linear-gradient(135deg,var(--cyan),var(--violet));border:none;border-radius:6px;color:var(--bg);font-family:var(--font-display);font-size:.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,229,255,.3)}
+.btn-secondary{padding:14px 36px;background:transparent;border:1px solid rgba(0,229,255,.4);border-radius:6px;color:var(--cyan);font-family:var(--font-display);font-size:.8rem;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .3s}
+.btn-secondary:hover{background:rgba(0,229,255,.1);transform:translateY(-3px)}
+
+/* 3D Rotating Cube */
+.hero-3d{position:absolute;right:8%;top:50%;transform:translateY(-50%);width:320px;height:320px;perspective:800px;z-index:1;opacity:.25}
+.cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:rotateCube 20s linear infinite}
+.cube-face{position:absolute;width:320px;height:320px;border:1px solid rgba(0,229,255,.15);background:rgba(0,229,255,.02);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.7rem;color:rgba(0,229,255,.3);letter-spacing:4px}
+.cube-face:nth-child(1){transform:translateZ(160px)}
+.cube-face:nth-child(2){transform:rotateY(180deg) translateZ(160px)}
+.cube-face:nth-child(3){transform:rotateY(90deg) translateZ(160px)}
+.cube-face:nth-child(4){transform:rotateY(-90deg) translateZ(160px)}
+.cube-face:nth-child(5){transform:rotateX(90deg) translateZ(160px)}
+.cube-face:nth-child(6){transform:rotateX(-90deg) translateZ(160px)}
+@keyframes rotateCube{0%{transform:rotateX(0) rotateY(0)}100%{transform:rotateX(360deg) rotateY(360deg)}}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTION STYLING ─── */
+section{position:relative;z-index:2;padding:100px 40px}
+.section-tag{font-family:var(--font-mono);font-size:.75rem;color:var(--magenta);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,var(--white),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-desc{color:rgba(232,236,244,.5);font-size:1.05rem;max-width:600px;line-height:1.7;margin-bottom:60px}
+
+/* ─── VIDEO SHOWCASE ─── */
+.video-showcase{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:32px;max-width:1400px;margin:0 auto}
+.video-card{position:relative;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid rgba(0,229,255,.08);transition:all .5s cubic-bezier(.25,.46,.45,.94);cursor:pointer;group:true}
+.video-card:hover{transform:translateY(-12px) scale(1.02);border-color:rgba(0,229,255,.3);box-shadow:0 20px 60px rgba(0,229,255,.15)}
+.video-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(135deg,var(--surface),var(--card))}
+.video-thumb .thumb-visual{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.video-thumb .scene-3d{width:100%;height:100%;perspective:600px;display:flex;align-items:center;justify-content:center}
+.rotating-obj{transform-style:preserve-3d;animation:gentleRotate 8s ease-in-out infinite}
+@keyframes gentleRotate{0%,100%{transform:rotateY(0) rotateX(5deg)}50%{transform:rotateY(180deg) rotateX(-5deg)}}
+
+.play-btn{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(0,229,255,.15);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:all .3s;z-index:5}
+.play-btn::after{content:'';width:0;height:0;border-left:20px solid var(--cyan);border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
+.video-card:hover .play-btn{background:rgba(0,229,255,.3);transform:scale(1.1);box-shadow:var(--glow-cyan)}
+.video-duration{position:absolute;bottom:12px;right:12px;padding:4px 10px;background:rgba(5,8,16,.8);border-radius:4px;font-family:var(--font-mono);font-size:.75rem;color:var(--cyan);z-index:5}
+.video-info{padding:24px}
+.video-category{font-family:var(--font-mono);font-size:.7rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;display:inline-block;padding:4px 12px;border-radius:50px}
+.cat-hardware{color:var(--cyan);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2)}
+.cat-software{color:var(--magenta);background:rgba(255,0,200,.1);border:1px solid rgba(255,0,200,.2)}
+.cat-solutions{color:var(--lime);background:rgba(57,255,20,.1);border:1px solid rgba(57,255,20,.2)}
+.cat-enterprise{color:var(--gold);background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2)}
+.video-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-top:12px;margin-bottom:8px;line-height:1.3}
+.video-desc{color:rgba(232,236,244,.45);font-size:.9rem;line-height:1.6;margin-bottom:16px}
+.video-meta{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+.video-views{font-family:var(--font-mono);font-size:.75rem;color:rgba(232,236,244,.4)}
+.video-rating{display:flex;gap:3px}
+.star{width:14px;height:14px;fill:var(--gold)}
+
+/* ─── CATEGORIES STRIP ─── */
+.cat-strip{display:flex;gap:12px;flex-wrap:wrap;max-width:1400px;margin:0 auto 48px}
+.cat-pill{padding:10px 24px;border-radius:50px;font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .3s;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--white)}
+.cat-pill:hover,.cat-pill.active{background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--bg);border-color:transparent;box-shadow:var(--glow-cyan)}
+
+/* ─── STATS BAR ─── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1400px;margin:0 auto;padding:80px 0}
+.stat-item{text-align:center;padding:32px;border-radius:16px;background:var(--card);border:1px solid rgba(0,229,255,.08);transition:all .3s}
+.stat-item:hover{border-color:rgba(0,229,255,.25);transform:translateY(-4px)}
+.stat-number{font-family:var(--font-display);font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.stat-label{font-family:var(--font-mono);font-size:.7rem;color:rgba(232,236,244,.4);letter-spacing:3px;text-transform:uppercase}
+
+/* ─── FEATURED PRODUCTS ─── */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1400px;margin:0 auto}
+.product-card{padding:32px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.06);transition:all .4s;position:relative;overflow:hidden}
+.product-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--violet));transform:scaleX(0);transition:transform .4s;transform-origin:left}
+.product-card:hover::before{transform:scaleX(1)}
+.product-card:hover{border-color:rgba(0,229,255,.2);transform:translateY(-6px)}
+.product-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.5rem}
+.product-icon.hw{background:rgba(0,229,255,.1);color:var(--cyan)}
+.product-icon.sw{background:rgba(255,0,200,.1);color:var(--magenta)}
+.product-icon.sol{background:rgba(57,255,20,.1);color:var(--lime)}
+.product-name{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px}
+.product-price{font-family:var(--font-mono);font-size:.85rem;color:var(--cyan);margin-bottom:12px}
+.product-specs{font-size:.85rem;color:rgba(232,236,244,.4);line-height:1.6}
+
+/* ─── NEWSLETTER ─── */
+.newsletter{max-width:700px;margin:0 auto;text-align:center;padding:80px 40px;border-radius:24px;background:linear-gradient(135deg,rgba(0,229,255,.05),rgba(123,45,255,.05));border:1px solid rgba(0,229,255,.1)}
+.newsletter-form{display:flex;gap:12px;margin-top:32px;max-width:480px;margin-left:auto;margin-right:auto}
+.newsletter-form input{flex:1;padding:14px 20px;background:var(--surface);border:1px solid rgba(0,229,255,.2);border-radius:8px;color:var(--white);font-family:var(--font-body);font-size:.95rem;outline:none;transition:border-color .3s}
+.newsletter-form input:focus{border-color:var(--cyan)}
+.newsletter-form input::placeholder{color:rgba(232,236,244,.3)}
+.newsletter-form button{padding:14px 28px;background:linear-gradient(135deg,var(--cyan),var(--violet));border:none;border-radius:8px;color:var(--bg);font-family:var(--font-display);font-size:.75rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .3s;white-space:nowrap}
+.newsletter-form button:hover{box-shadow:var(--glow-cyan);transform:translateY(-2px)}
+
+/* ─── FOOTER ─── */
+footer{border-top:1px solid rgba(255,255,255,.06);padding:60px 40px 30px;position:relative;z-index:2}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1400px;margin:0 auto}
+.footer-brand .logo{margin-bottom:16px}
+.footer-brand p{color:rgba(232,236,244,.4);font-size:.9rem;line-height:1.7;max-width:300px}
+.footer-col h4{font-family:var(--font-display);font-size:.8rem;font-weight:700;letter-spacing:2px;margin-bottom:20px;color:var(--white)}
+.footer-col a{display:block;color:rgba(232,236,244,.4);text-decoration:none;font-size:.9rem;margin-bottom:10px;transition:color .3s}
+.footer-col a:hover{color:var(--cyan)}
+.footer-bottom{text-align:center;padding-top:40px;margin-top:40px;border-top:1px solid rgba(255,255,255,.06);font-family:var(--font-mono);font-size:.7rem;color:rgba(232,236,244,.25);letter-spacing:2px}
+
+/* ─── SCROLL ANIMATIONS ─── */
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.25,.46,.45,.94)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  nav{padding:12px 20px}
+  .nav-links{display:none}
+  section{padding:60px 20px}
+  .hero-3d{display:none}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .newsletter-form{flex-direction:column}
+  .video-showcase{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">INITIALIZING NEXUS</div>
+</div>
+
+<!-- Grid Background -->
+<div class="grid-bg"></div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="logo">NEXUS<span>3D VIDEO SHOP</span></div>
+  <div class="nav-links">
+    <a href="#hardware">Hardware</a>
+    <a href="#software">Software</a>
+    <a href="#solutions">Solutions</a>
+    <a href="#videos">Videos</a>
+    <button class="nav-cta">GET STARTED</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-3d">
+    <div class="cube">
+      <div class="cube-face">HARDWARE</div>
+      <div class="cube-face">SOFTWARE</div>
+      <div class="cube-face">CLOUD</div>
+      <div class="cube-face">SECURITY</div>
+      <div class="cube-face">NETWORK</div>
+      <div class="cube-face">AI / ML</div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">⬡ NEXT-GEN IT MARKETPLACE</div>
+    <h1>
+      <span class="line1">IT SOLUTIONS</span>
+      <span class="line2">IN 3D VIDEO</span>
+    </h1>
+    <p>Explore enterprise hardware, cutting-edge software, and end-to-end IT solutions through immersive 3D video experiences. See it. Spin it. Deploy it.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary">EXPLORE CATALOG</button>
+      <button class="btn-secondary">WATCH DEMO ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section>
+  <div class="stats-bar">
+    <div class="stat-item reveal">
+      <div class="stat-number" data-count="2400">0</div>
+      <div class="stat-label">Products Listed</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-number" data-count="850">0</div>
+      <div class="stat-label">3D Video Reviews</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-number" data-count="12000">0</div>
+      <div class="stat-label">Enterprise Clients</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-number" data-count="99">0</div>
+      <div class="stat-label">% Uptime SLA</div>
+    </div>
+  </div>
+</section>
+
+<!-- Video Showcase -->
+<section id="videos">
+  <div class="section-tag reveal">// 3D VIDEO LIBRARY</div>
+  <div class="section-title reveal">Immersive Product Showcases</div>
+  <div class="section-desc reveal">Spin, zoom, and explore IT products in interactive 3D before you buy. Every angle. Every detail. Every spec.</div>
+
+  <div class="cat-strip reveal">
+    <button class="cat-pill active" data-filter="all">ALL</button>
+    <button class="cat-pill" data-filter="hardware">HARDWARE</button>
+    <button class="cat-pill" data-filter="software">SOFTWARE</button>
+    <button class="cat-pill" data-filter="solutions">SOLUTIONS</button>
+    <button class="cat-pill" data-filter="enterprise">ENTERPRISE</button>
+  </div>
+
+  <div class="video-showcase">
+    <!-- Card 1 -->
+    <div class="video-card reveal" data-cat="hardware">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:0s">
+              <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#7b2dff"/></linearGradient></defs>
+              <rect x="20" y="30" width="160" height="100" rx="8" fill="none" stroke="url(#g1)" stroke-width="2"/>
+              <rect x="35" y="42" width="130" height="70" rx="4" fill="rgba(0,229,255,0.05)" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
+              <rect x="60" y="130" width="80" height="6" rx="3" fill="rgba(0,229,255,0.15)"/>
+              <circle cx="100" cy="125" r="3" fill="#00e5ff"/>
+              <line x1="45" y1="55" x2="155" y2="55" stroke="rgba(0,229,255,0.1)" stroke-width="1"/>
+              <rect x="48" y="60" width="40" height="20" rx="2" fill="rgba(0,229,255,0.08)"/>
+              <rect x="95" y="60" width="55" height="3" rx="1" fill="rgba(0,229,255,0.15)"/>
+              <rect x="95" y="67" width="45" height="3" rx="1" fill="rgba(0,229,255,0.1)"/>
+              <rect x="95" y="74" width="50" height="3" rx="1" fill="rgba(0,229,255,0.1)"/>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">12:34</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-hardware">HARDWARE</span>
+        <div class="video-title">Dell PowerEdge R760 — 3D Teardown</div>
+        <div class="video-desc">Full 360° exploration of the latest rack server. Every component, every slot, rendered in real-time 3D.</div>
+        <div class="video-meta">
+          <span class="video-views">24.5K views • 3 days ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20" style="opacity:.3"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="video-card reveal" data-cat="software">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:-3s">
+              <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00c8"/><stop offset="100%" stop-color="#7b2dff"/></linearGradient></defs>
+              <circle cx="100" cy="80" r="55" fill="none" stroke="url(#g2)" stroke-width="2"/>
+              <circle cx="100" cy="80" r="40" fill="none" stroke="rgba(255,0,200,0.2)" stroke-width="1"/>
+              <circle cx="100" cy="80" r="25" fill="none" stroke="rgba(255,0,200,0.15)" stroke-width="1"/>
+              <circle cx="100" cy="80" r="8" fill="rgba(255,0,200,0.2)"/>
+              <line x1="100" y1="25" x2="100" y2="40" stroke="rgba(255,0,200,0.3)" stroke-width="1"/>
+              <line x1="145" y1="55" x2="133" y2="63" stroke="rgba(255,0,200,0.3)" stroke-width="1"/>
+              <line x1="145" y1="105" x2="133" y2="97" stroke="rgba(255,0,200,0.3)" stroke-width="1"/>
+              <circle cx="100" cy="25" r="4" fill="#ff00c8"/>
+              <circle cx="145" cy="55" r="4" fill="#ff00c8"/>
+              <circle cx="145" cy="105" r="4" fill="#ff00c8"/>
+              <circle cx="55" cy="55" r="4" fill="#ff00c8"/>
+              <circle cx="55" cy="105" r="4" fill="#ff00c8"/>
+              <circle cx="100" cy="135" r="4" fill="#ff00c8"/>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">08:47</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-software">SOFTWARE</span>
+        <div class="video-title">Kubernetes Cluster Visualizer 3D</div>
+        <div class="video-desc">Watch your K8s pods, services, and nodes rendered as an interactive 3D topology map in real-time.</div>
+        <div class="video-meta">
+          <span class="video-views">18.2K views • 1 week ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="video-card reveal" data-cat="solutions">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:-5s">
+              <defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#39ff14"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient></defs>
+              <polygon points="100,20 170,60 170,120 100,145 30,120 30,60" fill="none" stroke="url(#g3)" stroke-width="2"/>
+              <polygon points="100,40 150,65 150,110 100,128 50,110 50,65" fill="rgba(57,255,20,0.03)" stroke="rgba(57,255,20,0.15)" stroke-width="1"/>
+              <line x1="100" y1="20" x2="100" y2="145" stroke="rgba(57,255,20,0.1)" stroke-width="1"/>
+              <line x1="30" y1="60" x2="170" y2="120" stroke="rgba(57,255,20,0.08)" stroke-width="1"/>
+              <line x1="170" y1="60" x2="30" y2="120" stroke="rgba(57,255,20,0.08)" stroke-width="1"/>
+              <circle cx="100" cy="20" r="4" fill="#39ff14"/>
+              <circle cx="170" cy="60" r="3" fill="#39ff14"/>
+              <circle cx="170" cy="120" r="3" fill="#39ff14"/>
+              <circle cx="100" cy="145" r="4" fill="#39ff14"/>
+              <circle cx="30" cy="120" r="3" fill="#39ff14"/>
+              <circle cx="30" cy="60" r="3" fill="#39ff14"/>
+              <circle cx="100" cy="82" r="10" fill="rgba(57,255,20,0.1)" stroke="#39ff14" stroke-width="1"/>
+              <text x="100" y="86" text-anchor="middle" font-size="10" fill="#39ff14" font-family="Orbitron">☁</text>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">15:21</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-solutions">SOLUTIONS</span>
+        <div class="video-title">Hybrid Cloud Architecture Walkthrough</div>
+        <div class="video-desc">Step inside a 3D model of a complete hybrid cloud setup. See data flow, redundancy paths, and failover in action.</div>
+        <div class="video-meta">
+          <span class="video-views">31.8K views • 5 days ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="video-card reveal" data-cat="enterprise">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:-2s">
+              <defs><linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff6b00"/></linearGradient></defs>
+              <rect x="30" y="25" width="50" height="65" rx="4" fill="none" stroke="url(#g4)" stroke-width="1.5"/>
+              <rect x="75" y="40" width="50" height="65" rx="4" fill="none" stroke="rgba(255,215,0,0.4)" stroke-width="1.5"/>
+              <rect x="120" y="25" width="50" height="65" rx="4" fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="1.5"/>
+              <line x1="55" y1="90" x2="100" y2="105" stroke="rgba(255,215,0,0.3)" stroke-width="1" stroke-dasharray="4"/>
+              <line x1="100" y1="105" x2="145" y2="90" stroke="rgba(255,215,0,0.3)" stroke-width="1" stroke-dasharray="4"/>
+              <rect x="40" y="35" width="30" height="4" rx="2" fill="rgba(255,215,0,0.2)"/>
+              <rect x="40" y="43" width="20" height="4" rx="2" fill="rgba(255,215,0,0.15)"/>
+              <rect x="85" y="50" width="30" height="4" rx="2" fill="rgba(255,215,0,0.2)"/>
+              <rect x="85" y="58" width="25" height="4" rx="2" fill="rgba(255,215,0,0.15)"/>
+              <rect x="130" y="35" width="30" height="4" rx="2" fill="rgba(255,215,0,0.15)"/>
+              <circle cx="100" cy="130" r="12" fill="rgba(255,215,0,0.05)" stroke="#ffd700" stroke-width="1"/>
+              <text x="100" y="134" text-anchor="middle" font-size="10" fill="#ffd700" font-family="Orbitron">AI</text>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">20:05</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-enterprise">ENTERPRISE</span>
+        <div class="video-title">AI-Powered Data Center — Full Virtual Tour</div>
+        <div class="video-desc">Walk through a next-gen AI data center. GPU racks, liquid cooling, and petabyte storage in stunning 3D detail.</div>
+        <div class="video-meta">
+          <span class="video-views">45.1K views • 2 days ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="video-card reveal" data-cat="hardware">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:-4s">
+              <defs><linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#39ff14"/></linearGradient></defs>
+              <rect x="40" y="35" width="120" height="85" rx="6" fill="none" stroke="url(#g5)" stroke-width="2"/>
+              <rect x="50" y="45" width="100" height="60" rx="3" fill="rgba(0,229,255,0.03)"/>
+              <rect x="58" y="52" width="35" height="22" rx="2" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.2)" stroke-width=".5"/>
+              <rect x="58" y="78" width="35" height="22" rx="2" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.15)" stroke-width=".5"/>
+              <rect x="100" y="52" width="42" height="48" rx="2" fill="rgba(57,255,20,0.05)" stroke="rgba(57,255,20,0.2)" stroke-width=".5"/>
+              <circle cx="75" cy="63" r="6" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width=".5"/>
+              <circle cx="75" cy="63" r="2" fill="rgba(0,229,255,0.4)"/>
+              <line x1="108" y1="60" x2="135" y2="60" stroke="rgba(57,255,20,0.2)" stroke-width="2"/>
+              <line x1="108" y1="68" x2="130" y2="68" stroke="rgba(57,255,20,0.15)" stroke-width="2"/>
+              <line x1="108" y1="76" x2="132" y2="76" stroke="rgba(57,255,20,0.15)" stroke-width="2"/>
+              <circle cx="46" cy="42" r="2" fill="#39ff14"/>
+              <circle cx="46" cy="50" r="2" fill="#00e5ff" opacity=".5"/>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">10:12</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-hardware">HARDWARE</span>
+        <div class="video-title">NVIDIA H100 GPU — Exploded 3D View</div>
+        <div class="video-desc">Every transistor layer, heat sink fin, and PCB trace revealed in an immersive 3D exploded diagram.</div>
+        <div class="video-meta">
+          <span class="video-views">67.3K views • 1 day ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="video-card reveal" data-cat="software">
+      <div class="video-thumb">
+        <div class="thumb-visual">
+          <div class="scene-3d">
+            <svg class="rotating-obj" viewBox="0 0 200 160" width="180" style="animation-delay:-6s">
+              <defs><linearGradient id="g6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00c8"/><stop offset="100%" stop-color="#ff6b00"/></linearGradient></defs>
+              <rect x="55" y="30" width="90" height="55" rx="6" fill="none" stroke="url(#g6)" stroke-width="1.5"/>
+              <path d="M70 55 L85 47 L85 63 Z" fill="rgba(255,0,200,0.3)"/>
+              <rect x="92" y="48" width="40" height="3" rx="1" fill="rgba(255,0,200,0.2)"/>
+              <rect x="92" y="55" width="30" height="3" rx="1" fill="rgba(255,0,200,0.15)"/>
+              <rect x="92" y="62" width="35" height="3" rx="1" fill="rgba(255,0,200,0.1)"/>
+              <path d="M60 100 Q100 80 140 100 Q120 110 100 105 Q80 110 60 100Z" fill="none" stroke="rgba(255,0,200,0.2)" stroke-width="1"/>
+              <line x1="100" y1="85" x2="100" y2="100" stroke="rgba(255,0,200,0.15)" stroke-width="1" stroke-dasharray="3"/>
+              <circle cx="100" cy="105" r="4" fill="rgba(255,0,200,0.2)" stroke="#ff00c8" stroke-width="1"/>
+              <circle cx="75" cy="120" r="8" fill="none" stroke="rgba(255,107,0,0.2)" stroke-width="1"/>
+              <circle cx="125" cy="120" r="8" fill="none" stroke="rgba(255,107,0,0.2)" stroke-width="1"/>
+              <line x1="83" y1="120" x2="117" y2="120" stroke="rgba(255,107,0,0.15)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="play-btn"></div>
+        </div>
+        <div class="video-duration">06:55</div>
+      </div>
+      <div class="video-info">
+        <span class="video-category cat-software">SOFTWARE</span>
+        <div class="video-title">Zero Trust Security — Animated Breakdown</div>
+        <div class="video-desc">Visualize authentication flows, micro-segmentation, and threat detection in a stunning 3D security model.</div>
+        <div class="video-meta">
+          <span class="video-views">12.9K views • 4 days ago</span>
+          <div class="video-rating">
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+            <svg class="star" viewBox="0 0 20 20" style="opacity:.3"><path d="M10 1l2.39 6.06H19l-5.3 4.27 1.64 6.67L10 14.14 4.66 18l1.64-6.67L1 7.06h6.61z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section id="hardware">
+  <div class="section-tag reveal">// TOP PICKS</div>
+  <div class="section-title reveal">Featured Products & Solutions</div>
+  <div class="section-desc reveal">Curated selection of enterprise-grade IT products with 3D video demos available.</div>
+
+  <div class="products-grid">
+    <div class="product-card reveal">
+      <div class="product-icon hw">⬡</div>
+      <div class="product-name">Cisco Catalyst 9300X</div>
+      <div class="product-price">From $8,450</div>
+      <div class="product-specs">48-port PoE+ switch • 25G uplinks • SD-Access ready • 3D teardown video included</div>
+    </div>
+    <div class="product-card reveal">
+      <div class="product-icon sw">◈</div>
+      <div class="product-name">VMware vSphere 8.0</div>
+      <div class="product-price">Contact for pricing</div>
+      <div class="product-specs">DPU-based acceleration • vMotion improvements • AI/ML workload optimization • 3D architecture demo</div>
+    </div>
+    <div class="product-card reveal">
+      <div class="product-icon sol">◎</div>
+      <div class="product-name">Azure Stack HCI</div>
+      <div class="product-price">Pay-as-you-go</div>
+      <div class="product-specs">Hybrid cloud solution • Arc-enabled • GPU partitioning • Full 3D deployment walkthrough</div>
+    </div>
+    <div class="product-card reveal">
+      <div class="product-icon hw">⬡</div>
+      <div class="product-name">HPE ProLiant DL380</div>
+      <div class="product-price">From $4,299</div>
+      <div class="product-specs">Gen11 • DDR5 • PCIe Gen5 • Liquid cooling option • Interactive 3D model</div>
+    </div>
+    <div class="product-card reveal">
+      <div class="product-icon sw">◈</div>
+      <div class="product-name">Splunk Enterprise</div>
+      <div class="product-price">Per GB/day pricing</div>
+      <div class="product-specs">SIEM + Observability • ML-powered analytics • Custom dashboards • 3D data flow demo</div>
+    </div>
+    <div class="product-card reveal">
+      <div class="product-icon sol">◎</div>
+      <div class="product-name">SD-WAN Complete Package</div>
+      <div class="product-price">Custom quote</div>
+      <div class="product-specs">Multi-cloud fabric • Zero trust • Application-aware routing • 3D network topology video</div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section>
+  <div class="newsletter reveal">
+    <div class="section-tag">// STAY CONNECTED</div>
+    <div class="section-title" style="font-size:1.6rem">Get New 3D Product Videos First</div>
+    <p style="color:rgba(232,236,244,.5);margin-top:12px">Join 12,000+ IT professionals. Weekly drops of 3D teardowns, architecture walkthroughs, and exclusive deals.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="your@email.com">
+      <button>SUBSCRIBE</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">NEXUS<span>3D VIDEO SHOP</span></div>
+      <p>The future of IT procurement. See every product in immersive 3D before you deploy. Enterprise-grade, engineer-approved.</p>
+    </div>
+    <div class="footer-col">
+      <h4>EXPLORE</h4>
+      <a href="#">All Hardware</a>
+      <a href="#">Software Catalog</a>
+      <a href="#">IT Solutions</a>
+      <a href="#">3D Video Library</a>
+    </div>
+    <div class="footer-col">
+      <h4>COMPANY</h4>
+      <a href="#">About Nexus</a>
+      <a href="#">Careers</a>
+      <a href="#">Press Kit</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="#">Help Center</a>
+      <a href="#">API Docs</a>
+      <a href="#">Status Page</a>
+      <a href="#">Community</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 NEXUS 3D VIDEO SHOP — ALL RIGHTS RESERVED — BUILT FOR THE FUTURE
+  </div>
+</footer>
+
+<script>
+// Preloader
+window.addEventListener('load',()=>{
+  setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),1500);
+});
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<30;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  p.style.left=Math.random()*100+'%';
+  p.style.animationDuration=(8+Math.random()*12)+'s';
+  p.style.animationDelay=Math.random()*10+'s';
+  p.style.width=p.style.height=(1+Math.random()*3)+'px';
+  if(Math.random()>.6)p.style.background='#ff00c8';
+  if(Math.random()>.8)p.style.background='#7b2dff';
+  pc.appendChild(p);
+}
+
+// Scroll reveal
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('visible'),i*80);
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+reveals.forEach(r=>observer.observe(r));
+
+// Counter animation
+const counters=document.querySelectorAll('[data-count]');
+const cObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const target=+e.target.dataset.count;
+      const suffix=e.target.closest('.stat-item').querySelector('.stat-label').textContent.includes('%')?'%':'+';
+      let current=0;
+      const step=target/60;
+      const timer=setInterval(()=>{
+        current+=step;
+        if(current>=target){current=target;clearInterval(timer)}
+        e.target.textContent=Math.floor(current).toLocaleString()+suffix;
+      },25);
+      cObserver.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+counters.forEach(c=>cObserver.observe(c));
+
+// Category filter
+const pills=document.querySelectorAll('.cat-pill');
+const cards=document.querySelectorAll('.video-card');
+pills.forEach(pill=>{
+  pill.addEventListener('click',()=>{
+    pills.forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    const f=pill.dataset.filter;
+    cards.forEach(c=>{
+      if(f==='all'||c.dataset.cat===f){
+        c.style.display='';c.style.opacity='1';c.style.transform='';
+      } else {
+        c.style.opacity='0';c.style.transform='scale(0.95)';
+        setTimeout(()=>c.style.display='none',300);
+      }
+    });
+  });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
