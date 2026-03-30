@@ -29,6 +29,16 @@ scrollButtons.forEach((btn) => {
   });
 });
 
+const navToggle = document.querySelector('.nav-toggle');
+const navMenu = document.querySelector('.nav');
+if (navToggle && navMenu) {
+  navToggle.addEventListener('click', () => {
+    const isOpen = navMenu.classList.toggle('is-open');
+    navToggle.classList.toggle('is-open', isOpen);
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+}
+
 const leadForm = document.getElementById('lead-form');
 const toast = document.getElementById('toast');
 
