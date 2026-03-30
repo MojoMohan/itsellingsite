@@ -1,0 +1,246 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PCGS Enterprises | Product Catalog</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand brand-link" href="index.html">
+        <span class="brand-mark">PCGS</span>
+        <div>
+          <p class="brand-name">PCGS Enterprises</p>
+          <p class="brand-tag">New + Refurbished Enterprise & Retail Hardware</p>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="index.html#solutions">Solutions</a>
+        <a href="index.html#inventory">Inventory</a>
+        <a href="catalog.html">Catalog</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a class="ghost-btn" href="tel:+919000000000">Call Now</a>
+        <a class="primary-btn" href="https://wa.me/919000000000?text=Hello%20PCGS%20Enterprises,%20I%20need%20a%20quote%20for%20IT%20hardware." target="_blank" rel="noreferrer">WhatsApp</a>
+      </div>
+    </header>
+
+    <main class="catalog-shell">
+      <section class="catalog-hero catalog-hero-grid">
+        <div>
+          <p class="hero-label">PCGS product catalog</p>
+          <h1>Filter, compare, and request quotes instantly.</h1>
+          <p>Find new and refurbished inventory by condition, category, and brand.</p>
+        </div>
+        <div class="hero-card hero-visual">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=60" alt="IT hardware components" />
+          <div class="hero-visual-overlay">
+            <p class="hero-card-title">Ready-to-ship inventory</p>
+            <p>Verified parts, fast dispatch, and dedicated account support.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="catalog-root"></section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <p class="brand-name">PCGS Enterprises</p>
+        <p>New and refurbished IT hardware, security systems, and accessories.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#solutions">Solutions</a>
+        <a href="index.html#inventory">Inventory</a>
+        <a href="catalog.html">Catalog</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+      <div>
+        <p>support@pcgsenterprises.com</p>
+        <p>+91 90000 00000</p>
+      </div>
+    </footer>
+  </div>
+
+  <div class="fab-stack">
+    <a class="fab whatsapp" href="https://wa.me/919000000000?text=Hello%20PCGS%20Enterprises,%20I%20need%20a%20quote%20for%20IT%20hardware." target="_blank" rel="noreferrer">WhatsApp</a>
+    <a class="fab call" href="tel:+919000000000">Call</a>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@emotion/react@11/umd/emotion-react.umd.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@emotion/styled@11/umd/emotion-styled.umd.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@mui/material@5/umd/material-ui.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@mui/icons-material@5/umd/material-ui-icons.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const {
+      Box,
+      Button,
+      Card,
+      CardContent,
+      CardMedia,
+      Chip,
+      Container,
+      Divider,
+      FormControl,
+      Grid,
+      InputLabel,
+      MenuItem,
+      Select,
+      Stack,
+      TextField,
+      Typography,
+      Paper,
+      ThemeProvider,
+      createTheme,
+    } = MaterialUI;
+
+    const fallbackProducts = [
+      { id: 1, name: 'Elite Business Laptop', category: 'Laptops', brand: 'Dell', condition: 'New', spec: 'Core i7 · 16GB · 512GB NVMe', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=60' },
+    ];
+
+    const conditions = ['All', 'New', 'Refurbished'];
+
+    const theme = createTheme({
+      palette: {
+        primary: { main: '#1d4ed8' },
+        background: { default: '#ffffff' },
+      },
+      typography: {
+        fontFamily: 'Manrope, Roboto, sans-serif',
+      },
+      shape: {
+        borderRadius: 16,
+      },
+    });
+
+    function CatalogApp() {
+      const [items, setItems] = React.useState(fallbackProducts);
+      const [category, setCategory] = React.useState('All');
+      const [brand, setBrand] = React.useState('All');
+      const [condition, setCondition] = React.useState('All');
+      const [search, setSearch] = React.useState('');
+
+      React.useEffect(() => {
+        fetch('/api/items')
+          .then((res) => res.json())
+          .then((data) => {
+            if (Array.isArray(data) && data.length) {
+              setItems(data);
+            }
+          })
+          .catch(() => {});
+      }, []);
+
+      const categories = ['All', ...new Set(items.map((p) => p.category))];
+      const brands = ['All', ...new Set(items.map((p) => p.brand))];
+
+      const filtered = items.filter((product) => {
+        const matchCategory = category === 'All' || product.category === category;
+        const matchBrand = brand === 'All' || product.brand === brand;
+        const matchCondition = condition === 'All' || product.condition === condition;
+        const matchSearch = product.name.toLowerCase().includes(search.toLowerCase());
+        return matchCategory && matchBrand && matchCondition && matchSearch;
+      });
+
+      return (
+        <ThemeProvider theme={theme}>
+          <Container disableGutters>
+            <Paper elevation={2} sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, bgcolor: 'white' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Condition</InputLabel>
+                    <Select value={condition} label="Condition" onChange={(e) => setCondition(e.target.value)}>
+                      {conditions.map((item) => (
+                        <MenuItem key={item} value={item}>{item}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select value={category} label="Category" onChange={(e) => setCategory(e.target.value)}>
+                      {categories.map((item) => (
+                        <MenuItem key={item} value={item}>{item}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Brand</InputLabel>
+                    <Select value={brand} label="Brand" onChange={(e) => setBrand(e.target.value)}>
+                      {brands.map((item) => (
+                        <MenuItem key={item} value={item}>{item}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <TextField
+                    label="Search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+                Showing {filtered.length} of {items.length} items
+              </Typography>
+
+              <Grid container spacing={3}>
+                {filtered.map((product) => (
+                  <Grid item xs={12} md={4} key={product.id}>
+                    <Card elevation={3} sx={{ height: '100%' }}>
+                      <CardMedia
+                        component="img"
+                        height="180"
+                        image={product.image}
+                        alt={product.name}
+                      />
+                      <CardContent>
+                        <Stack spacing={1}>
+                          <Typography variant="h6" sx={{ fontWeight: 700 }}>{product.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">{product.spec}</Typography>
+                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                            <Chip label={product.condition} color={product.condition === 'New' ? 'primary' : 'default'} />
+                            <Chip label={product.category} />
+                            <Chip label={product.brand} />
+                          </Stack>
+                          <Button variant="contained" size="small" sx={{ mt: 1 }}>
+                            Request Quote
+                          </Button>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          </Container>
+        </ThemeProvider>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('catalog-root'));
+    root.render(<CatalogApp />);
+  </script>
+</body>
+</html>

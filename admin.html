@@ -1,0 +1,242 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PCGS Admin | Catalog Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand brand-link" href="index.html">
+        <span class="brand-mark">PCGS</span>
+        <div>
+          <p class="brand-name">PCGS Enterprises</p>
+          <p class="brand-tag">Admin catalog manager</p>
+        </div>
+      </a>
+      <div class="header-actions">
+        <a class="ghost-btn" href="catalog.html">View Catalog</a>
+        <button class="primary-btn" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-card" id="loginCard">
+        <h1>Admin login</h1>
+        <p>Use your admin credentials to manage catalog items.</p>
+        <form id="loginForm" class="admin-form">
+          <label>
+            Username
+            <input type="text" name="username" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" required />
+          </label>
+          <button class="primary-btn" type="submit">Sign in</button>
+          <p class="form-note" id="loginMessage"></p>
+        </form>
+      </section>
+
+      <section class="admin-card" id="managerCard" hidden>
+        <h1>Catalog items</h1>
+        <p>Add new items or remove outdated ones. Items appear instantly on the catalog page.</p>
+        <form id="itemForm" class="admin-form">
+          <input type="hidden" name="id" />
+          <label>
+            Product name
+            <input type="text" name="name" required />
+          </label>
+          <label>
+            Category
+            <input type="text" name="category" placeholder="Laptops / Servers / Storage" required />
+          </label>
+          <label>
+            Brand
+            <input type="text" name="brand" required />
+          </label>
+          <label>
+            Condition
+            <input type="text" name="condition" placeholder="New / Refurbished" required />
+          </label>
+          <label>
+            Spec summary
+            <input type="text" name="spec" placeholder="Core i7 · 16GB · 512GB NVMe" required />
+          </label>
+          <label>
+            Image URL
+            <input type="url" name="image" placeholder="https://..." required />
+          </label>
+          <div class="admin-actions">
+            <button class="primary-btn" type="submit" id="itemSubmit">Add item</button>
+            <button class="ghost-btn" type="button" id="cancelEdit" hidden>Cancel edit</button>
+          </div>
+          <p class="form-note" id="itemMessage"></p>
+        </form>
+
+        <div class="admin-list" id="itemList"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const loginCard = document.getElementById('loginCard');
+    const managerCard = document.getElementById('managerCard');
+    const loginForm = document.getElementById('loginForm');
+    const loginMessage = document.getElementById('loginMessage');
+    const itemForm = document.getElementById('itemForm');
+    const itemMessage = document.getElementById('itemMessage');
+    const itemList = document.getElementById('itemList');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const itemSubmit = document.getElementById('itemSubmit');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const idField = itemForm.querySelector('input[name=\"id\"]');
+    let isAuthenticated = false;
+
+    const setAuthenticated = (auth) => {
+      isAuthenticated = auth;
+      loginCard.hidden = auth;
+      managerCard.hidden = !auth;
+      logoutBtn.hidden = !auth;
+    };
+
+    setAuthenticated(false);
+
+    const renderItems = (items) => {
+      itemList.innerHTML = '';
+      items.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'admin-item';
+        row.innerHTML = `
+          <div>
+            <strong>${item.name}</strong>
+            <p>${item.category} · ${item.brand} · ${item.condition}</p>
+            <span>${item.spec}</span>
+          </div>
+          <div class="admin-item-actions">
+            <button class="edit" data-id="${item.id}">Edit</button>
+            <button class="delete" data-id="${item.id}">Delete</button>
+          </div>
+        `;
+        row.querySelector('.delete').addEventListener('click', async () => {
+          if (!isAuthenticated) return;
+          await fetch(`/api/items/${item.id}`, { method: 'DELETE', credentials: 'include' });
+          loadItems();
+        });
+        row.querySelector('.edit').addEventListener('click', () => {
+          if (!isAuthenticated) return;
+          idField.value = item.id;
+          itemForm.name.value = item.name;
+          itemForm.category.value = item.category;
+          itemForm.brand.value = item.brand;
+          itemForm.condition.value = item.condition;
+          itemForm.spec.value = item.spec;
+          itemForm.image.value = item.image;
+          itemSubmit.textContent = 'Save changes';
+          cancelEdit.hidden = false;
+          itemMessage.textContent = '';
+          itemForm.scrollIntoView({ behavior: 'smooth' });
+        });
+        itemList.appendChild(row);
+      });
+    };
+
+    const loadItems = async () => {
+      if (!isAuthenticated) return;
+      const res = await fetch('/api/items');
+      const items = await res.json();
+      renderItems(items);
+    };
+
+    const resetForm = () => {
+      idField.value = '';
+      itemSubmit.textContent = 'Add item';
+      cancelEdit.hidden = true;
+      itemForm.reset();
+    };
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(loginForm);
+      const payload = Object.fromEntries(formData.entries());
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        loginMessage.textContent = '';
+        setAuthenticated(true);
+        loadItems();
+      } else {
+        loginMessage.textContent = 'Invalid credentials. Try again.';
+      }
+    });
+
+    itemForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!isAuthenticated) return;
+      const formData = new FormData(itemForm);
+      const payload = Object.fromEntries(formData.entries());
+      const isEditing = Boolean(idField.value);
+      const endpoint = isEditing ? `/api/items/${idField.value}` : '/api/items';
+      const method = isEditing ? 'PUT' : 'POST';
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        itemMessage.textContent = isEditing ? 'Item updated.' : 'Item added.';
+        resetForm();
+        loadItems();
+      } else {
+        itemMessage.textContent = 'Please fill all fields.';
+      }
+    });
+
+    cancelEdit.addEventListener('click', () => {
+      resetForm();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      setAuthenticated(false);
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const quickUser = params.get('username');
+    const quickPass = params.get('password');
+    if (quickUser && quickPass) {
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: quickUser, password: quickPass }),
+      }).then((res) => {
+        if (res.ok) {
+          setAuthenticated(true);
+          loadItems();
+        }
+      });
+    }
+
+    fetch('/api/session', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) {
+          setAuthenticated(true);
+          loadItems();
+        }
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>
